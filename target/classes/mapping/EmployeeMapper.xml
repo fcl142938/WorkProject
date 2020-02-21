@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accp.dao.EmployeeMapper">
+	<resultMap id="BaseResultMap" type="com.accp.pojo.Employee">
+		<id column="employeeId" property="employeeid" jdbcType="INTEGER" />
+		<result column="employeeName" property="employeename"
+			jdbcType="VARCHAR" />
+		<result column="password" property="password"
+			jdbcType="VARCHAR" />
+		<result column="departmentId" property="departmentid"
+			jdbcType="INTEGER" />
+		<result column="positionId" property="positionid"
+			jdbcType="INTEGER" />
+		<result column="pId" property="pid" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="VARCHAR" />
+		<result column="imgsrc" property="imgsrc" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		employeeId, employeeName, password, departmentId, positionId, pId, status, imgsrc
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from employee
+		where employeeId = #{employeeid,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey"
+		parameterType="java.lang.Integer">
+		delete from employee
+		where employeeId = #{employeeid,jdbcType=INTEGER}
+	</delete>
+	<insert id="insertSelective"
+		parameterType="com.accp.pojo.Employee">
+		insert into employee
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="employeeid != null">
+				employeeId,
+			</if>
+			<if test="employeename != null">
+				employeeName,
+			</if>
+			<if test="password != null">
+				password,
+			</if>
+			<if test="departmentid != null">
+				departmentId,
+			</if>
+			<if test="positionid != null">
+				positionId,
+			</if>
+			<if test="pid != null">
+				pId,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="imgsrc != null">
+				imgsrc,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="employeeid != null">
+				#{employeeid,jdbcType=INTEGER},
+			</if>
+			<if test="employeename != null">
+				#{employeename,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				#{password,jdbcType=VARCHAR},
+			</if>
+			<if test="departmentid != null">
+				#{departmentid,jdbcType=INTEGER},
+			</if>
+			<if test="positionid != null">
+				#{positionid,jdbcType=INTEGER},
+			</if>
+			<if test="pid != null">
+				#{pid,jdbcType=INTEGER},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=VARCHAR},
+			</if>
+			<if test="imgsrc != null">
+				#{imgsrc,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective"
+		parameterType="com.accp.pojo.Employee">
+		update employee
+		<set>
+			<if test="employeename != null">
+				employeeName = #{employeename,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+			<if test="departmentid != null">
+				departmentId = #{departmentid,jdbcType=INTEGER},
+			</if>
+			<if test="positionid != null">
+				positionId = #{positionid,jdbcType=INTEGER},
+			</if>
+			<if test="pid != null">
+				pId = #{pid,jdbcType=INTEGER},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=VARCHAR},
+			</if>
+			<if test="imgsrc != null">
+				imgsrc = #{imgsrc,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where employeeId = #{employeeid,jdbcType=INTEGER}
+	</update>
+
+	<!-- 登录 -->
+	<select id="queryByLogin" resultType="com.accp.vo.EmployeeVo">
+		SELECT * FROM `employee` AS e INNER JOIN `department` AS d ON
+		e.`departmentId` =d.`departmentId`
+		INNER JOIN `position` AS p ON e.`positionId` =p.`positionId`
+		WHERE `employeeId` = #{employeeId} AND `password` = #{password}
+	</select>
+	
+	<!-- 查询下一个处理人 -->
+	<select id="queryNextdealman" resultType="com.accp.pojo.Employee">
+		select  * from Employee  
+		<where> 
+			<if test="departmentid!=null">
+			 and 	departmentid =#{departmentid}
+			</if>
+		   and	positionId=#{positionid}
+		</where>
+	</select>
+</mapper>

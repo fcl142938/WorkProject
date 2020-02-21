@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accp.dao.TbcountMapper">
+	<select id="queryByUserAndMonth"
+		resultType="com.accp.pojo.Tbcount">
+		SELECT * FROM `tbcount` WHERE `year` = #{year} AND `month` = #{month} AND
+		`employeeId` =#{userId} order  by countId desc
+	</select>
+
+	<select id="queryById" resultType="com.accp.pojo.Tbcount">
+		select  `countId`<if test="status==null"> ,`month`</if>,`year`,SUM(`money`) as money,`departmentId`,`departmentName`,`employeeId`,`employeeName`
+		 from `tbcount` WHERE `year` = #{year}
+		 	<if test="status==null"> AND `month` = #{month}</if>
+		  AND `departmentId` =#{departmentId}
+		  group by employeeId order  by countId desc
+	</select>
+	<!-- 添加 -->
+	<insert id="addTb" parameterType="com.accp.pojo.Tbcount">
+		insert into `tbcount` values(0,#{money},#{year},#{month},#{departmentid},
+		#{employeeid},#{departmentname},#{employeename});
+	</insert>
+
+	<!-- 修改 -->
+	<update id="modifyTb" parameterType="com.accp.pojo.Tbcount">
+		update `tbcount` set money = #{money} where `year` = #{year} AND `month` =
+		#{month} AND `employeeId` =#{employeeid};
+	</update>
+
+	<!--月度统计 -->
+	<select id="queryByMonth" resultType="com.accp.pojo.Tbcount">
+		SELECT `year`,`month`,`departmentId`,`departmentName`,SUM(`money`) as
+		money
+		FROM `tbcount`
+		<where>
+			<if test="departmentId!=null">
+				and `departmentId` = #{departmentId}
+			</if>
+			<if test="year!=0&amp; year!=null">
+				and `year`=#{year}
+			</if>
+
+			<if test="status!=null">
+				<if test="startTime!=0&amp; endTime==0">
+					and `month` > #{startTime}
+				</if>
+				<if test="startTime==0&amp; endTime!=0">
+					and `month` &lt; #{endTime}
+				</if>
+				<if test="startTime!=0&amp; endTime!=0">
+					and `month` BETWEEN #{startTime} and #{endTime}
+				</if>
+			</if>
+
+			<if test="status==null">
+				<if test="startTime!=0&amp; endTime==0">
+					and `year` > #{startTime}
+				</if>
+				<if test="startTime==0&amp; endTime!=0">
+					and `year` &lt; #{endTime}
+				</if>
+				<if test="startTime!=0&amp; endTime!=0">
+					and `year` BETWEEN #{startTime} and #{endTime}
+				</if>
+			</if>
+		</where>
+		GROUP BY 
+		<if test="departmentId==null">
+			`departmentId` ,
+		</if>
+		`year`
+		<if test="status!=null">
+			,`month`
+		</if>
+		order  by countId desc
+	</select>
+
+	<!--年度统计 -->
+
+</mapper>

@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<!--<base href="/jboa/">-->
+<link href="../css/style.css" rel="stylesheet" type="text/css">
+<!-- <script type="text/javascript" src="../js/common.js"></script>
+<script type="text/javascript" src="../js/My97DatePicker/WdatePicker.js"></script> 
+<link href="..//js/My97DatePicker/skin/WdatePicker.css"rel="stylesheet" type="text/css"> -->
+<style type="text/css">
+	.showTr>button{
+		display: inline-block;
+		margin: 0 5px;
+	}
+</style>
+</head>
+<body>
+	<div class="action  divaction">
+		<div class="t">请假列表</div>
+		<div class="pages">
+			<div class="forms">
+				<form id="leave_searchLeave_action" name="queryForm"
+					action="" method="get">
+					<label for="time">开始时间</label> <input type="text" name="startTime"
+						value=""  class="nwinput"> <label
+						for="end-time">结束时间</label> <input type="text" name="endTime"
+						value=""  class="nwinput" > <input
+						type="button" id="queryIn" value="查询"
+						class="submit_01">
+
+				</form>
+			</div>
+			<!--增加报销单 区域 开始-->
+			<table width="90%" border="0" cellspacing="0" cellpadding="0"
+				class="list items">
+				<thead>
+					<tr class="even">
+						<td>编号</td>
+						<td>名称</td>
+						<td>发起时间</td>
+						<td>审批时间</td>
+						<td>审批意见</td>
+						<td>待处理人</td>
+						<td>审批状态</td>
+						<td>操作</td>
+					</tr>
+				</thead>
+				<tbody id="showTb">
+					
+				</tbody>
+			</table>
+			<!--请假 区域 结束-->
+		</div>
+	</div>
+	<script type="text/javascript" src="../js/jquery-1.8.0.min.js"></script>
+	<script type="text/javascript">
+	var user =JSON.parse(window.sessionStorage.getItem("user"));
+	/* 初始化 */
+		LoadData(1);
+	
+		$("#queryIn").click(function(){
+			LoadData(1);
+		})
+		/* 加载数据 */
+		function LoadData(currentPage) {
+			$("#showTb").html("");
+			var startTime=$("[name=startTime]").val();
+			var endTime=$("[name=endTime]").val();
+			$.getJSON("/projectFour/api/leave/query",{"currentPage":currentPage,"startTime":startTime,"endTime":endTime},function(res){
+				$.each(res.list,function(i,obj){
+					var tr=$(`<tr><td><a href="javascript:void(0)">${obj.leaveId}</a></td>
+						<td>${obj.leaveName}</td><td>${obj.createTime}</td>
+						<td class="showTime">${obj.checkTime}</td><td>${obj.resultName}</td><td>${obj.nextName}</td>
+						<td>${obj.statusName}</td><td><a href="/projectFour/api/leave/queryById?tbId=${obj.leaveId}"> <img src="../images/search.gif" width="16" height="15"/>
+						</a><a href="/projectFour/api/leave/queryById?tbId=${obj.leaveId}&status=1" class="update"> <img src="../images/sub.gif" width="16" height="15"/>
+							</a></td></tr>`);
+					if(obj.checkTime==null){
+						tr.find(".showTime").text("");
+					}
+					
+					if(obj.nextName!=user.employeename){
+						//alert(obj.nextName+","+user.employeename)
+						tr.find("td").find(".update").remove();
+					}
+					$("#showTb").append(tr);
+				})
+				$("#showTb").append($(`<tr class="showTr"><td colspan="8" align="center"><div class="page-bar">
+						<button  data-page="${res.firstPage}">首页</button>
+						<button  data-page="${res.prePage}">上一页</button>
+						<button  data-page="${res.nextPage}">下一页</button>
+						<button  data-page="${res.lastPage}">末页</button>
+						&nbsp;&nbsp; &nbsp;&nbsp;第${res.pageNum}页/共${res.pages}页&nbsp;&nbsp;共${res.total}条记录</div></td></tr>`));
+				
+				//翻页操作
+				$(".showTr button").on('click',function(){
+					var currentPage=$(this).attr("data-page");
+					if(currentPage==0){
+						alert("没有"+$(this).text());
+					}else{
+						LoadData(currentPage);
+					}		
+				})
+				
+				
+			});
+		}
+		
+		
+	</script>
+</body>
+</html>

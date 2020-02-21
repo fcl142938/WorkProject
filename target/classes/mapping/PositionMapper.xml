@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accp.dao.PositionMapper" >
+  <resultMap id="BaseResultMap" type="com.accp.pojo.Position" >
+    <id column="positionId" property="positionid" jdbcType="INTEGER" />
+    <result column="positionName" property="positionname" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    positionId, positionName
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from position
+    where positionId = #{positionid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from position
+    where positionId = #{positionid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.accp.pojo.Position" >
+    insert into position (positionId, positionName)
+    values (#{positionid,jdbcType=INTEGER}, #{positionname,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.accp.pojo.Position" >
+    insert into position
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="positionid != null" >
+        positionId,
+      </if>
+      <if test="positionname != null" >
+        positionName,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="positionid != null" >
+        #{positionid,jdbcType=INTEGER},
+      </if>
+      <if test="positionname != null" >
+        #{positionname,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.accp.pojo.Position" >
+    update position
+    <set >
+      <if test="positionname != null" >
+        positionName = #{positionname,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where positionId = #{positionid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.accp.pojo.Position" >
+    update position
+    set positionName = #{positionname,jdbcType=VARCHAR}
+    where positionId = #{positionid,jdbcType=INTEGER}
+  </update>
+</mapper>

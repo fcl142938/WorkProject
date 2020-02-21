@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accp.dao.CheckresultMapper" >
+  <resultMap id="BaseResultMap" type="com.accp.pojo.Checkresult" >
+    <id column="resultId" property="resultid" jdbcType="INTEGER" />
+    <result column="resultName" property="resultname" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    resultId, resultName
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from checkresult
+    where resultId = #{resultid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from checkresult
+    where resultId = #{resultid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.accp.pojo.Checkresult" >
+    insert into checkresult (resultId, resultName)
+    values (#{resultid,jdbcType=INTEGER}, #{resultname,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.accp.pojo.Checkresult" >
+    insert into checkresult
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="resultid != null" >
+        resultId,
+      </if>
+      <if test="resultname != null" >
+        resultName,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="resultid != null" >
+        #{resultid,jdbcType=INTEGER},
+      </if>
+      <if test="resultname != null" >
+        #{resultname,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.accp.pojo.Checkresult" >
+    update checkresult
+    <set >
+      <if test="resultname != null" >
+        resultName = #{resultname,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where resultId = #{resultid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.accp.pojo.Checkresult" >
+    update checkresult
+    set resultName = #{resultname,jdbcType=VARCHAR}
+    where resultId = #{resultid,jdbcType=INTEGER}
+  </update>
+</mapper>

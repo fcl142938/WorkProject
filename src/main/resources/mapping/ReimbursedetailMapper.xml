@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accp.dao.ReimbursedetailMapper" >
+  	<!--同时新增多个  -->
+  	<insert id="addReMoney">
+  		insert into Reimbursedetail values 
+  		<foreach collection="list" item="li" separator=",">
+  			(0,#{li.mainid},#{li.subtotal}, #{li.desc},#{li.picturename}, #{li.picturepath})
+  		</foreach>
+  	</insert>
+  
+  	<!-- 移除多个 -->
+  	<delete id="removeReMoney">
+  		delete from Reimbursedetail where id in 
+  		<foreach collection="list" item="l" open="(" separator="," close=")">
+  			#{l}
+  		</foreach>
+  	</delete>
+  	<!-- 主表id查询 -->
+  	<select id="queryByMid" resultType="com.accp.pojo.Reimbursedetail">
+  		select * from Reimbursedetail where mainId =#{tbId}
+  	</select>
+  	
+  	<!-- 更具id查询多个 -->
+  	<select id="queryById"  resultType="com.accp.pojo.Reimbursedetail">
+  		select * from Reimbursedetail where id in
+  		<foreach collection="list" item="l" open="(" separator="," close=")">
+  			#{l}
+  		</foreach>
+  		order  by  id desc
+  	</select>
+</mapper>

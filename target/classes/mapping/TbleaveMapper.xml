@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accp.dao.TbleaveMapper">
+	<!--删除 -->
+	<delete id="deleteByPrimaryKey"
+		parameterType="java.lang.Integer">
+		delete from tbleave where leaveId = #{leaveid};
+		delete
+		from tbcheck where bizId =#{leaveid} and typeId =1;
+	</delete>
+	<!--新增 -->
+	<insert id="insert" parameterType="com.accp.pojo.Tbleave">
+		insert into tbleave
+		values (0,
+		1, #{createman},
+		#{departmentid},
+		#{createtime,jdbcType=TIMESTAMP}, #{starttime,jdbcType=TIMESTAMP},
+		#{endtime,jdbcType=TIMESTAMP}, #{nextdealman}, #{event},
+		#{totalcount}, #{statusid})
+	</insert>
+	<!-- 查询分页 -->
+	<select id="queryByPage" resultType="com.accp.vo.TbleaveVo">
+		SELECT `leaveId`,CONCAT(e.`employeeName`,'请假',t.`totalCount`,'天') AS
+		leaveName,`createTime`,
+		e1.`employeeName` AS nextName
+		,statusName,`checkTime`,
+		IFNULL((SELECT `resultName` FROM `checkresult` AS c
+		WHERE c.`resultId` =
+		t1.`checkResult`),'') AS `resultName`
+		FROM `tbleave` AS
+		t
+		INNER JOIN `employee` AS e ON e.`employeeId` =t.`createMan`
+		INNER JOIN
+		`employee` AS e1 ON e1.`employeeId`=t.`nextDealMan`
+		INNER JOIN
+		`tbstatus` AS tb ON tb.`statusId`=t.`statusId`
+		LEFT JOIN `tbcheck` AS
+		t1 ON t1.`typeId`=1 AND t1.`checkId` =
+		(SELECT `checkId` FROM `tbcheck`
+		AS t2 WHERE t2.`bizId`=t.`leaveId` ORDER BY
+		t2.`checkTime` DESC LIMIT
+		0,1 )
+		<where>
+			<!-- 时间无关 -->
+			<if test="startTime!=null&amp; endTime!=null">
+				 `createTime` BETWEEN #{startTime} AND #{endTime}
+			</if>
+			<if test="startTime!=null&amp; endTime==null">
+				and `createTime` > #{startTime}
+			</if>
+			<if test="startTime==null&amp; endTime!=null">
+				and `createTime` &lt; #{endTime}
+			</if>
+		
+			<if test="positionId==null">
+			 and	`createMan` = #{userid}
+			</if>
+			<if test="positionId!=null">
+				<!-- 经理 -->
+				<if test="departmentId!=null">
+				 and	( `createMan` = #{userid} OR nextDealMan =#{userid} OR
+					t.`createMan` IN
+					(SELECT `employeeId` FROM `employee` AS e2 WHERE
+					e2.`departmentId`=#{departmentId} AND
+					t.`statusId` &lt;> 1 ) )
+				</if>
+
+				<!-- 人事 -->
+				<if test="departmentId==null">
+				and	 ( `createMan` = #{userid} OR nextDealMan =#{userid} OR
+					t.`createMan` IN
+					(SELECT `employeeId` FROM `employee` AS e2 WHERE
+					t.`statusId` &lt;> 1 ) )
+				</if>
+			</if>
+			
+			
+			
+			
+		</where>
+		order by createTime desc
+	</select>
+
+	<!-- 查询单个 -->
+	<select id="queryById" resultMap="tbMap">
+		SELECT
+		nextDealMan,`leaveId`,e.`employeeName` AS
+		imName,`departmentName`,`startTime`,`endTime`,`totalCount`,`event`,`statusName`,
+		checkId,e1.`employeeName` AS leName,`checkComment`,`checkTime`,`resultName`
+		FROM `tbleave` AS t
+		LEFT JOIN `tbcheck` AS tb ON t.`leaveId` =tb.`bizId` AND tb.`typeId` =1
+		LEFT JOIN `employee` AS e ON e.`employeeId`=t.`createMan`
+		LEFT JOIN `department` AS d ON d.`departmentId` =e.`departmentId`
+		LEFT JOIN `tbstatus` AS tbs ON t.`statusId` =tbs.`statusId`
+		LEFT JOIN `employee` AS e1 ON e1.`employeeId`=tb.`checkMan`
+		LEFT JOIN `checkresult` AS c ON c.`resultId`=tb.`checkResult`
+		where  leaveId =#{tbId}
+	</select>
+	<resultMap type="com.accp.pojo.Tbleave" id="tbMap">
+		<id property="leaveid" column="leaveId"/>
+		<result property="nextdealman" column="nextDealMan" />
+		<result property="starttime" column="startTime"/>
+		<result property="endtime" column="endTime"/>
+		<result property="totalcount" column="totalCount"/>
+		<result property="departmentName" column="departmentName"/>
+		<result property="event" column="event"/>
+		<result property="statusName" column="statusName"/>
+		<collection property="list" ofType="com.accp.vo.TbcheckVo">
+			<id property="checkId" column="checkId"/>
+			<result property="checkTime" column="checkTime"/>
+			<result property="checkManName" column="leName"/>
+			<result property="checkComment" column="checkComment"/>
+			<result property="resultName" column="resultName"/>
+		</collection>
+	</resultMap>
+	<!-- 修改 -->
+	<update id="modidyStatus">
+		update tbleave  set  `nextDealMan` = #{nextMan}, `statusId` = #{status}   where  leaveId=#{tbId}
+	</update>
+</mapper>

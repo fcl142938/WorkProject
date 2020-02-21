@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+
+	<head>
+		<!--<base href="/jboa/">-->
+		<link href="../css/style.css" rel="stylesheet" type="text/css">
+		<script type="text/javascript">
+			function submitSearch() {
+				if(document.queryForm.endYear.value < document.queryForm.startYear.value) {
+					alert("请输入正确的年份区间");
+					return false;
+				}
+				document.queryForm.submit();
+
+			}
+		</script>
+	</head>
+
+	<body>
+		<div class="action  divaction">
+			<div class="t">年度统计列表</div>
+			<div class="pages">
+				<form id="compYearStatistics_getList_action" name="queryForm" action="../jboa/statistics/yearList?pageNum=1&pageSize=10" method="get">
+					<label for="time">开始年份</label>
+					<select name="startTime"  class="nwinput">
+						<option value="0">无</option>
+
+						<option value="2013">2013年</option>
+
+						<option value="2014">2014年</option>
+
+						<option value="2015">2015年</option>
+
+						<option value="2016">2016年</option>
+
+						<option value="2017">2017年</option>
+
+						<option value="2018">2018年</option>
+
+					</select>
+					<label for="end-time">结束年份</label>
+					<select name="endTime"  class="nwinput">
+						<option value="0">无</option>
+
+						<option value="2013">2013年</option>
+
+						<option value="2014">2014年</option>
+
+						<option value="2015">2015年</option>
+
+						<option value="2016">2016年</option>
+
+						<option value="2017">2017年</option>
+
+						<option value="2018">2018年</option>
+
+					</select>
+					<input type="button" value="提交" class="submit_01" onclick="LoadData(1)">
+				</form>
+				<table width="90%" border="0" cellspacing="0" cellpadding="0" class="list items">
+					<thead>
+						<tr class="even">
+							<td>编号</td>
+							<td>总计</td>
+							<td>年份</td>
+							<td>操作</td>
+						</tr>
+					</thead>
+					<tbody id="tbShow">
+					</tbody>
+					<tr id="trShow"></tr>
+				</table>
+			</div>
+		</div>
+		<script type="text/javascript" src="../js/jquery-1.12.4.js"></script>
+<script type="text/javascript" src="../js/common.js"></script>
+
+<script type="text/javascript">
+
+	LoadData(1);
+	//加载数据
+	function LoadData(curretPage) {
+		$("#tbShow").html("");
+		$("#trShow").html("");
+		var startTime=$("[name=startTime]").val();
+		var endTime=$("[name=endTime]").val();
+		$.getJSON("/projectFour/api/count/queryAll",{"startTime":startTime,"endTime":endTime,"curretPage":curretPage},function(res){
+			$.each(res.list,function(i,obj){
+				var tr=$(`<tr><td>${i}</td><td>￥${obj.money}</td>
+						<td>${obj.year}年</td>
+						<td><a target="rightFrame" href="/projectFour/api/count/queryOne?status=1&year=${obj.year}&month=${obj.month}&departmentId=${obj.departmentid}&view=YearView" > <img
+						src="../images/search.gif" width="16" height="15">
+						</a></td></tr>`);
+				$("#tbShow").append(tr);
+			
+			})
+			
+				$("#trShow").append($(`<td colspan="7" align="center">
+						<div class="page-bar">
+						<a href="javascript:void(0)" data-page="${res.firstPage}">首页</a>
+						<a href="javascript:void(0)" data-page="${res.prePage}">上一页</a>
+						<a href="javascript:void(0)" data-page="${res.nextPage}">下一页</a>
+						<a href="javascript:void(0)" data-page="${res.lastPage}">末页</a>
+						&nbsp;&nbsp; &nbsp;&nbsp;第 ${res.pageNum}页/共${res.pages}页&nbsp;&nbsp;共${res.total}条记录</div></td>`));
+				
+			
+			//翻页
+			$("#trShow a").on('click',function(){
+				var currentPage=$(this).attr("data-page");
+				if(currentPage==0){
+					alert("没有"+$(this).text());
+				}else{
+					LoadData(currentPage);
+				}
+			})
+			
+		})
+	}
+	
+	$("#query").click(function(){
+		LoadData(1);
+	})
+</script>
+	</body>
+
+</html>

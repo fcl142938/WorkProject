@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accp.dao.TbreimburseMapper">
+
+
+	<!--修改 -->
+	<update id="updateByPrimaryKeySelective"
+		parameterType="com.accp.pojo.Tbreimburse">
+		update tbreimburse
+		<set>
+			<if test="typeid != null">
+				typeId = #{typeid},
+			</if>
+			<if test="createman != null">
+				createMan = #{createman,jdbcType=INTEGER},
+			</if>
+			<if test="createtime != null">
+				createTime = #{createtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="departmentid != null">
+				departmentId = #{departmentid,jdbcType=INTEGER},
+			</if>
+			<if test="nextdealman != null">
+				nextDealMan = #{nextdealman,jdbcType=INTEGER},
+			</if>
+			<if test="event != null">
+				event = #{event,jdbcType=VARCHAR},
+			</if>
+			<if test="totalcount != null">
+				totalCount = #{totalcount,jdbcType=REAL},
+			</if>
+			<if test="statusid != null">
+				statusId = #{statusid,jdbcType=INTEGER},
+			</if>
+		</set>
+		where reimburseId = #{reimburseid}
+	</update>
+
+	<!-- 新增 -->
+	<insert id="addTbreimburse"
+		parameterType="com.accp.pojo.Tbreimburse">
+		insert into Tbreimburse
+		values(#{reimburseid},2,#{createman},#{createtime},
+		#{departmentid},#{nextdealman},#{event},#{totalcount},#{statusid});
+		insert into Reimbursedetail values
+		<foreach collection="list" item="re" separator=",">
+			(0,#{reimburseid},#{re.subtotal},#{re.desc},#{re.picturename},#{re.picturepath})
+		</foreach>
+		;
+	</insert>
+	<!--查询单个详细信息 -->
+	<select id="queryByTbId" resultMap="tbMap">
+		SELECT t.`reimburseId` AS
+		reimburseId ,
+		createtime,totalcount,`event`,statusid,
+		(SELECT
+		`statusName` FROM `tbstatus` AS tb1 WHERE tb1.`statusId`=t.`statusId`)
+		AS statusName,
+		(SELECT `employeeName` FROM `employee` AS e WHERE
+		e.`employeeId`
+		=t.`nextDealMan` ) AS nextName,
+		e.`employeeId`,`employeeName`,e.`departmentId`,e.`positionId`,
+		(SELECT
+		`departmentName` FROM `department` AS d WHERE d.`departmentId`
+		=e.`departmentId`) AS `departmentName`,
+		(SELECT `positionName` FROM
+		`position` AS p WHERE p.`positionId`
+		=e.`positionId`) AS
+		`positionName`,
+		`id`,`subTotal`,`desc`,`pictureName`,`picturePath`,
+		`checkId`,`checkTime`,(SELECT `employeeName` FROM `employee` AS e2
+		WHERE e2.`employeeId` =t1.`checkMan` ) AS checkManName,
+		(SELECT
+		`resultName` FROM `checkresult` AS tb WHERE tb.`resultId`
+		=t1.`checkResult`) AS resultName,`checkComment`
+		FROM `tbreimburse` AS t
+		INNER JOIN `employee` AS e ON
+		t.`createMan`=e.`employeeId`
+		LEFT JOIN
+		`reimbursedetail` AS r ON r.`mainId` =t.`reimburseId`
+		LEFT JOIN
+		`tbcheck` AS t1 ON t1.`bizId`=t.`reimburseId` AND t1.`typeId`=2
+		WHERE
+		t.`reimburseId` =#{tbId}  order by createTime desc
+	</select>
+
+	<resultMap id="tbMap" type="com.accp.vo.TbreimburseVo">
+		<id property="reimburseid" column="reimburseId" />
+		<result property="nextName" column="nextName" />
+		<result property="createtime" column="createtime" />
+		<result property="event" column="event" />
+		<result property="totalcount" column="totalcount" />
+		<result property="statusid" column="statusid" />
+		<result property="statusName" column="statusName" />
+		<!--用户信息 -->
+		<association property="userVo"
+			javaType="com.accp.vo.EmployeeVo">
+			<id property="employeeid" column="employeeId" />
+			<result property="employeename" column="employeeName" />
+			<result property="departmentid" column="departmentId" />
+			<result property="positionid" column="positionId" />
+			<result property="departmentName" column="departmentName" />
+			<result property="positionName" column="positionName" />
+		</association>
+		<!--明细 -->
+		<collection property="reList"
+			ofType="com.accp.pojo.Reimbursedetail">
+			<id property="id" column="id" />
+			<result property="subtotal" column="subTotal" />
+			<result property="desc" column="desc" />
+			<result property="picturename" column="pictureName" />
+			<result property="picturepath" column="picturePath" />
+		</collection>
+		<!--审核信息 -->
+		<collection property="tbList"
+			ofType="com.accp.vo.TbcheckVo">
+			<id property="checkId" column="checkId" />
+			<result property="checkTime" column="checkTime" />
+			<result property="checkManName" column="checkManName" />
+			<result property="resultName" column="resultName" />
+			<result property="checkComment" column="checkComment" />
+		</collection>
+	</resultMap>
+
+	<!--分页条件查询 -->
+	<select id="queryPageByTerm"
+		resultType="com.accp.vo.TbreimburseVo">
+		SELECT `reimburseId`,`createTime`,
+		(SELECT `employeeName` FROM
+		`employee` AS e WHERE
+		e.`employeeId`=t.`createMan` ) AS createManName,
+		`totalCount`,`statusName`,t.`statusId` AS statusId,
+		(SELECT
+		`employeeName` FROM `employee` AS e WHERE
+		e.`employeeId`=t.`nextDealMan` )AS nextName
+		FROM `tbreimburse` AS t
+		INNER JOIN `tbstatus` AS t1 ON t.`statusId` =
+		t1.`statusId`
+		<where>
+			<!-- 时间无关 -->
+			<if test="StartTime!=null&amp; endTime!=null">
+				and `createTime` BETWEEN #{StartTime} AND #{endTime}
+			</if>
+			<if test="StartTime!=null&amp; endTime==null">
+				and `createTime` > #{StartTime}
+			</if>
+			<if test="StartTime==null&amp; endTime!=null">
+				and `createTime` &lt; #{endTime}
+			</if>
+		
+			<!--处理逻辑 -->
+			<!-- 在状态为1和6的情况下 所有人只能查看自身数据 -->
+			<if test="statusId==1||statusId==8 &amp;statusId!=null">
+				and t.statusId=#{statusId}
+				<if test="userid!=null">
+					and createMan =#{userid}
+				</if>
+			</if>
+
+			<if test="statusId!=1&amp;statusId!=8"> 
+				
+				<!--根据权限判断可见情况 -->
+				<!-- 可以查看其他的数据 -->
+				<if test="positionId!=null">
+					<!--部门经理权限 -->
+					<if test="positionId==1">
+						<if test="showId==0">
+							 and t.`createMan` in (SELECT `employeeId` FROM
+							`employee` AS e4 WHERE
+							e4.departmentid =#{departmentid})
+							<if test="statusId == null">
+								and ( t.`statusId` not IN(1)	or  t.`createMan` = #{userid} )
+							</if>
+						</if>
+						<if test="showId==1">
+							and t.`createMan` = #{userid}
+						</if>			
+						<if test="statusId!=null">
+							and t.statusId=#{statusId}
+						</if>	
+						
+						
+					</if>
+					<!-- 财务权限 -->
+					<if test="positionId!=1">
+						<!-- 状态判定 存档，已付款全部可见 -->
+						<if test="statusId!=5&amp;statusId!=7&amp;statusId!=null">
+							 and ( `nextDealMan` = (SELECT `employeeId` FROM 
+							`employee` AS e3 WHERE
+							e3.`positionId` =#{positionId}) or createMan =#{userid} )
+						</if>
+						<if test="statusId!=null">
+							and t.statusId=#{statusId}
+						</if>
+						
+						<if test="showId==0">
+							 <if test="statusId==null">
+							( t.`statusId` IN(5,7) or (`nextDealMan` = (SELECT `employeeId` FROM 
+							`employee` AS e3 WHERE
+							e3.`positionId` =#{positionId}) or createMan =#{userid}))
+						</if> 
+						</if>
+						<if test="showId==1">
+							and t.`createMan` = #{userid}
+						</if>	
+						
+					</if>				
+				</if>
+				<!-- 普通员工 -->
+				<if test="positionId==null">
+					<if test="userid!=null">
+						and createMan =#{userid}
+					</if>
+					<if test="statusId!=null">
+						and t.statusId=#{statusId}
+					</if>	
+				</if>
+				
+			</if>
+
+			
+		</where>
+		ORDER BY t.`createTime` DESC
+	</select>
+	<!--  移除-->
+	<delete id="removeById">
+		delete  from tbreimburse where reimburseId=#{tbId};
+		delete  from reimbursedetail  where mainId=#{tbId};
+		delete  from  tbcheck where  bizId=#{tbId} and typeId =2;
+	</delete>
+	<!-- 查询单个数据 -->
+	<select id="queryByID" resultType="com.accp.pojo.Tbreimburse">
+		select  * from tbreimburse where `reimburseId` =#{tbId}
+	</select>
+</mapper>
