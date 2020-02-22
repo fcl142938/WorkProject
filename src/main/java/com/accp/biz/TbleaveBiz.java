@@ -71,13 +71,13 @@ public class TbleaveBiz {
 	 * @param currentPage
 	 * @return
 	 */
-	public  PageInfo<TbleaveVo> queryByPage(Integer userid,Integer positionId,Integer departmentId,Integer currentPage,String startTime,String endTime){
-		PageHelper.startPage(currentPage,5);
+	public  PageInfo<TbleaveVo> queryByPage(Integer userid,Integer positionId,Integer departmentId,Integer currentPage,String startTime,String endTime,Integer pageSize){
+		PageHelper.startPage(currentPage,pageSize);
 		if(positionId==2||positionId==3||positionId==5) {
 			positionId=null;
 		}
 		
-		if(positionId!=1) {
+		if(positionId!=null&&positionId!=1) {
 			departmentId=null;
 		}
 		return new PageInfo<TbleaveVo>(dao.queryByPage(userid, positionId, departmentId,startTime,endTime));

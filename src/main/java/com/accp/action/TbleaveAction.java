@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.accp.biz.TbleaveBiz;
 import com.accp.pojo.Employee;
@@ -19,7 +20,7 @@ import com.accp.pojo.Tbleave;
 import com.accp.vo.TbleaveVo;
 import com.github.pagehelper.PageInfo;
 
-@Controller
+@RestController
 @RequestMapping("/api/leave")
 public class TbleaveAction {
 	
@@ -30,11 +31,9 @@ public class TbleaveAction {
 	 * 查询全部分页
 	 * @return
 	 */
-	@PostMapping("query")
-	@ResponseBody
+	@GetMapping("query")
 	public PageInfo<TbleaveVo> queryPage(HttpSession session,Integer currentPage,Integer pageSize,String startTime,String endTime) {
 		Employee user =(Employee)session.getAttribute("user");
-		currentPage=1;
 		if("".equals(startTime)) {
 			startTime=null;
 		}
@@ -42,7 +41,7 @@ public class TbleaveAction {
 			endTime=null;
 		}
 		
-		return tb.queryByPage(user.getEmployeeid(), user.getPositionid(), user.getDepartmentid(), currentPage, startTime, endTime);
+		return tb.queryByPage(user.getEmployeeid(), user.getPositionid(), user.getDepartmentid(), currentPage, startTime, endTime,pageSize);
 	}
 	
 	/**
@@ -52,7 +51,6 @@ public class TbleaveAction {
 	 * @return
 	 */
 	@PostMapping("add")
-	@ResponseBody
 	public  String addLeave(HttpSession session,Tbleave tbleve) {
 		//System.out.println(tbleve.getStarttime());
 		Employee user =(Employee)session.getAttribute("user");
@@ -66,15 +64,12 @@ public class TbleaveAction {
 	 * @return
 	 */
 	@GetMapping("queryById")
-	public String  queryById(Model model, Integer tbId,Integer status) {
+	public Tbleave  queryById( Integer tbId) {
 		//System.out.println(tb.queryById(tbId).getDepartmentName());
-		model.addAttribute("tb", tb.queryById(tbId));
-		model.addAttribute("status", status);
-		return  "/ui/seeLeave.jsp";
+		return  tb.queryById(tbId);
 	}
 	
 	@PostMapping("modifyStatus")
-	@ResponseBody
 	public   String modifyStatus(HttpSession session,Integer tbId,Integer status,String event) {
 		Employee user =(Employee)session.getAttribute("user");
 		System.out.println(user);

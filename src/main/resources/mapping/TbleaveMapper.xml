@@ -101,6 +101,7 @@
 		<result property="nextdealman" column="nextDealMan" />
 		<result property="starttime" column="startTime"/>
 		<result property="endtime" column="endTime"/>
+		<result property="imName" column="imName"/>
 		<result property="totalcount" column="totalCount"/>
 		<result property="departmentName" column="departmentName"/>
 		<result property="event" column="event"/>
