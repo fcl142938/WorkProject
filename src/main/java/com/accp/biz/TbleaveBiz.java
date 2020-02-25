@@ -8,9 +8,11 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 
 import com.accp.dao.EmployeeMapper;
+import com.accp.dao.MessagesMapper;
 import com.accp.dao.TbcheckMapper;
 import com.accp.dao.TbleaveMapper;
 import com.accp.pojo.Employee;
+import com.accp.pojo.Messages;
 import com.accp.pojo.Tbcheck;
 import com.accp.pojo.Tbleave;
 import com.accp.vo.TbleaveVo;
@@ -34,6 +36,9 @@ public class TbleaveBiz {
 	@Resource
 	private TbcheckMapper chedao;
 	
+	@Resource
+	private MessagesMapper medao;
+	
 	/**
 	 * 新增
 	 * @param tbleve
@@ -51,7 +56,11 @@ public class TbleaveBiz {
 		}else {
 			tbleve.setNextdealman(1000);
 		}
-		return dao.insert(tbleve);
+		//添加推送消息
+		medao.addMe(new Messages(tbleve.getNextdealman(),user.getEmployeename()+ "提交了一份请假", new Date()));
+		//添加
+		dao.insert(tbleve);
+		return tbleve.getNextdealman();
 	}
 	
 	/**
@@ -107,10 +116,15 @@ public class TbleaveBiz {
 			if(dao.queryById(tbId).getNextdealman()==1017) {
 				return dao.modidyStatus(tbId, 7, 10000);
 			}else {
-				return dao.modidyStatus(tbId, 4, 1017);
+				 dao.modidyStatus(tbId, 4, 1017);
+				 //添加推送消息
+				  medao.addMe(new Messages(1017, "有一份请假待处理", new Date()));
+				  return 1017;
 			}
 		}else {
-			return dao.modidyStatus(tbId, 8, 10000);
+			 dao.modidyStatus(tbId, 8, 10000);
+			 medao.addMe(new Messages(dao.queryById(tbId).getCreateMan(), "您的请假申请被拒绝了", new Date()));
+			 return dao.queryById(tbId).getCreateMan();
 		}
 		
 	}

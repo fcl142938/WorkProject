@@ -31,7 +31,7 @@ public class TbcountBiz {
 	 * @param departmentId
 	 * @return
 	 */
-	public  List<Tbcount>  queryByTrime(int year,Integer month,int departmentId,Integer status){
+	public  List<Tbcount>  queryByTrime(Integer year,Integer month,Integer departmentId,Integer status){
 		return dao.queryById(year, month, departmentId,status);
 	}
 }

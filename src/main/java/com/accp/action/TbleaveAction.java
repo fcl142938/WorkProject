@@ -54,8 +54,8 @@ public class TbleaveAction {
 	public  String addLeave(HttpSession session,Tbleave tbleve) {
 		//System.out.println(tbleve.getStarttime());
 		Employee user =(Employee)session.getAttribute("user");
-		tb.addTbLeave(tbleve,user);
-		return "yes";
+		Integer number=tb.addTbLeave(tbleve,user);
+		return number.toString();
 	}
 	
 	/**
@@ -72,10 +72,10 @@ public class TbleaveAction {
 	@PostMapping("modifyStatus")
 	public   String modifyStatus(HttpSession session,Integer tbId,Integer status,String event) {
 		Employee user =(Employee)session.getAttribute("user");
-		System.out.println(user);
+		//System.out.println(user);
 		Tbcheck tbs= new Tbcheck(tbId.toString(), 1, new Date(), user.getEmployeeid(), status, event);
-		System.out.println(tbs);
-		tb.modifyStatus(tbId, status,tbs);
-		return "yes";
+		//System.out.println(tbs);
+		Integer number =tb.modifyStatus(tbId, status,tbs);
+		return number.toString();
 	}
 }

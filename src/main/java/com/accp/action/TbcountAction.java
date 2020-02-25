@@ -1,6 +1,8 @@
 package com.accp.action;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
@@ -8,6 +10,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.accp.biz.TbcountBiz;
 import com.accp.pojo.Employee;
 import com.accp.pojo.Tbcount;
+import com.accp.util.ExPortExcelAction;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageInfo;
 
@@ -54,9 +58,18 @@ public class TbcountAction {
 	 * @return
 	 */
 	@GetMapping("queryOne")
-	public  List<Tbcount> queryByTrime(int year, Integer month,int departmentId,String view,Integer status){
+	public  List<Tbcount> queryByTrime(int year, Integer month,int departmentId,Integer status){
 		System.out.println(month);
 		return tb.queryByTrime(year, month, departmentId,status);
+	}
+	
+	@PostMapping("educeExcel")
+	public Map<String,String>  educeExcel(Integer year, Integer month,Integer departmentId,Integer status,String oftype){
+		ExPortExcelAction exExcel= new ExPortExcelAction(year,month,departmentId,status,oftype,tb.queryByTrime(year, month, departmentId, status));
+		exExcel.reprotExcel();
+		Map<String, String> map= new HashMap<String, String>();
+		map.put("status", "ok");
+		return map;
 	}
 	
 	

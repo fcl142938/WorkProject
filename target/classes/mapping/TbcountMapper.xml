@@ -26,7 +26,7 @@
 		#{month} AND `employeeId` =#{employeeid};
 	</update>
 
-	<!--月度统计 -->
+	<!--统计 -->
 	<select id="queryByMonth" resultType="com.accp.pojo.Tbcount">
 		SELECT `year`,`month`,`departmentId`,`departmentName`,SUM(`money`) as
 		money

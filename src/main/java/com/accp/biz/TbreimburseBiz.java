@@ -3,6 +3,7 @@ package com.accp.biz;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -12,10 +13,12 @@ import org.springframework.stereotype.Service;
 
 import com.accp.dao.DepartmentMapper;
 import com.accp.dao.EmployeeMapper;
+import com.accp.dao.MessagesMapper;
 import com.accp.dao.ReimbursedetailMapper;
 import com.accp.dao.TbcountMapper;
 import com.accp.dao.TbreimburseMapper;
 import com.accp.pojo.Employee;
+import com.accp.pojo.Messages;
 import com.accp.pojo.Reimbursedetail;
 import com.accp.pojo.Tbcount;
 import com.accp.pojo.Tbreimburse;
@@ -40,6 +43,9 @@ public class TbreimburseBiz {
 	
 	@Resource
 	private DepartmentMapper  dedao;
+	
+	@Resource
+	private MessagesMapper  medao;
 
 	/**
 	 * 新增
@@ -51,7 +57,12 @@ public class TbreimburseBiz {
 		// 查询设置下一个处理人业务处理逻辑
 		if(tbr.getStatusid()==2) {
 			//提交启动
-			return dao.addTbreimburse(queryNextdealman(tbr));
+			dao.addTbreimburse(queryNextdealman(tbr));
+			
+			//添加推送消息
+			medao.addMe(new Messages(tbr.getNextdealman(),emdao.selectByPrimaryKey(tbr.getCreateman()).getEmployeename()+"提交了一份报销单" ,new Date()));	
+			//返回下一个处理人id
+			return tbr.getNextdealman();
 		}	
 		//新建状态
 		tbr.setNextdealman(10000);
@@ -98,32 +109,55 @@ public class TbreimburseBiz {
 		}else {
 			queryNextdealman(tbr);
 		}
-		return dao.updateByPrimaryKeySelective(tbr);
+		 dao.updateByPrimaryKeySelective(tbr);
+		 medao.addMe(new Messages(tbr.getNextdealman(), "您有一份报销申请待审核", new Date()));
+		 return tbr.getNextdealman();
 	}
 
 	//个人修改 提交查询下一个处理人
 	public  int modifyAll(Tbreimburse tbr) {
 		if(tbr.getStatusid()!=null) {
-			return dao.updateByPrimaryKeySelective(queryNextdealman(tbr));
+			 dao.updateByPrimaryKeySelective(queryNextdealman(tbr));
+			 //添加推送消息
+			 medao.addMe(new Messages(tbr.getNextdealman(), "您有一份报销申请待审核", new Date()));
+			 return tbr.getNextdealman();
 		}
 		return dao.updateByPrimaryKeySelective(tbr);
 	}
 	
 	//审核
 	public  int  modifyChildren(Tbreimburse tbr) {
+		Integer userid=dao.queryByID(tbr.getReimburseid()).getCreateman();
 		if(tbr.getStatusid()==2||tbr.getStatusid()==3) {
-			//System.out.println(tbr.getCreateman());
-			tbr.setNextdealman(dao.queryByID(tbr.getReimburseid()).getCreateman());
+			//System.out.println(tbr.getCreateman());	
+			tbr.setNextdealman(userid);
 			modifyTbStatus(tbr);
-			return dao.updateByPrimaryKeySelective(tbr);
+			 dao.updateByPrimaryKeySelective(tbr);
+			 String content;
+			 if(tbr.getStatusid()==2) {
+				 content="拒绝";
+			 }else {
+				 content="打回";
+			 }
+			 //添加推送消息
+			 medao.addMe(new Messages(userid, "您的报销申请被"+content, new Date()));
+			 
 		}else {
 			//通过
 			Integer status=tbr.getStatusid();
 			tbr=dao.queryByID(tbr.getReimburseid());
 			tbr.setStatusid(status);
-			modifyTbStatus(tbr);	
-			return dao.updateByPrimaryKeySelective(queryNextdealman(tbr));
+			modifyTbStatus(tbr);
+			if(tbr.getNextdealman()==10000) {
+				medao.addMe(new Messages(userid, "您的报销申请通过了", new Date()));
+				dao.updateByPrimaryKeySelective(queryNextdealman(tbr));
+			}else {
+				dao.updateByPrimaryKeySelective(queryNextdealman(tbr));
+				medao.addMe(new Messages(tbr.getNextdealman(), "您有一份报销单待审核", new Date()));
+				userid=tbr.getNextdealman();		
+			}		
 		}
+		return userid;
 	}
 	
 	/**

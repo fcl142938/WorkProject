@@ -85,9 +85,8 @@ public class TbreimburseAction {
 		tbr.setCreatetime(date);
 		tbr.setList(list);
 		tbr.setDepartmentid(user.getDepartmentid());
-		tb.addTbreimburse(tbr);
-	//	System.out.println("132");
-		return "";
+		Integer nunber=tb.addTbreimburse(tbr);
+		return nunber+"";
 	}
 	
 	//修改内容
@@ -132,8 +131,8 @@ public class TbreimburseAction {
 			rb.addReMoney(list);
 		}
 		tbr.setCreateman(user.getEmployeeid());
-		tb.modifyAll(tbr);
-		return "";
+		Integer number=tb.modifyAll(tbr);
+		return number.toString();
 	}
 	
 	
@@ -149,7 +148,7 @@ public class TbreimburseAction {
 		tbr.setStatusid(tbche.getCheckresult());
 		//修改主表状态
 		//System.out.println(tbr.getReimburseid());
-		tb.modifyChildren(tbr);
+		Integer number=tb.modifyChildren(tbr);
 		//增加子表数据
 		tbche.setBizid(tbr.getReimburseid());
 		tbche.setCheckman(user.getEmployeeid());
@@ -157,7 +156,7 @@ public class TbreimburseAction {
 		tbche.setChecktime(new Date());
 		tbche.setTypeid(2);
 		tbcheb.addTb(tbche);
-		return "ok";
+		return number.toString();
 	}
 	
 	/**
@@ -212,10 +211,7 @@ public class TbreimburseAction {
 		Employee user =(Employee)session.getAttribute("user");
 		tbr.setCreateman(user.getEmployeeid());
 		tbr.setStatusid(2);
-		if(tb.modifyStatus(tbr)>0) {
-			return "yes";
-		}else {
-			return "no";
-		}
+		Integer  number=tb.modifyStatus(tbr);
+		return number.toString();
 	}
 }

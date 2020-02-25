@@ -13,6 +13,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 public class Tbleave {
 	private SimpleDateFormat df= new SimpleDateFormat("yyyy-MM-dd");
 	
+	
     private Integer leaveid;
 
     private Integer typeid;
@@ -24,6 +25,8 @@ public class Tbleave {
     private String imName;
 
     private Date createtime;
+    
+    private Integer createMan;
     
   
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -174,4 +177,13 @@ public class Tbleave {
     public void setStatusid(Integer statusid) {
         this.statusid = statusid;
     }
+
+	public Integer getCreateMan() {
+		return createMan;
+	}
+
+	public void setCreateMan(Integer createMan) {
+		this.createMan = createMan;
+	}
+    
 }

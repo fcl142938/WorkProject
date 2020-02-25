@@ -84,7 +84,7 @@
 	<!-- 查询单个 -->
 	<select id="queryById" resultMap="tbMap">
 		SELECT
-		nextDealMan,`leaveId`,e.`employeeName` AS
+		createMan,nextDealMan,`leaveId`,e.`employeeName` AS
 		imName,`departmentName`,`startTime`,`endTime`,`totalCount`,`event`,`statusName`,
 		checkId,e1.`employeeName` AS leName,`checkComment`,`checkTime`,`resultName`
 		FROM `tbleave` AS t
@@ -98,6 +98,7 @@
 	</select>
 	<resultMap type="com.accp.pojo.Tbleave" id="tbMap">
 		<id property="leaveid" column="leaveId"/>
+		<result property="createMan" column="createMan"/>
 		<result property="nextdealman" column="nextDealMan" />
 		<result property="starttime" column="startTime"/>
 		<result property="endtime" column="endTime"/>

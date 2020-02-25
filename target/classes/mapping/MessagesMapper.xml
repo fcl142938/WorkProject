@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper	namespace="com.accp.dao.MessagesMapper">
+		<insert id="addMe" parameterType="com.accp.pojo.Messages">
+			insert into Messages values(0,#{userid},#{content}, #{time},0);
+		</insert>
+		
+		<update id="modifyById">
+			update Messages set  status = 1 where id =#{id};
+		</update>
+		
+		<select id="queryByUserId" resultType="com.accp.pojo.Messages">
+			select  * from Messages where userid= #{userid} and status =0
+		</select>
+</mapper>

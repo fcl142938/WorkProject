@@ -15,7 +15,7 @@ public interface TbcountMapper {
 	
 	
 	//根据条件查询多个集合
-	 List<Tbcount> queryById(@Param("year")int year,@Param("month")Integer month,@Param("departmentId")int departmentId,@Param("status")Integer status);
+	 List<Tbcount> queryById(@Param("year")Integer year,@Param("month")Integer month,@Param("departmentId")Integer departmentId,@Param("status")Integer status);
 	
 	//添加 
 	int addTb(Tbcount tbc);

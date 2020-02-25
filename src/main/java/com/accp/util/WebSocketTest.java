@@ -47,13 +47,15 @@ public class WebSocketTest {
 		/**
 		 * 发送信息
 		 */
+		System.out.println(json.get("user"));
 		if (map.get(json.get("user")) != null && map.get(json.get("user")).session != null) {
 			map.get(json.get("user")).session.getBasicRemote().sendText(JSON.toJSONString(json));
 		}
 
-		if (map.get("All") != null && map.get("All").session != null) {
-			map.get("All").session.getBasicRemote().sendText("12");
-		}
+		/*
+		 * if (map.get("All") != null && map.get("All").session != null) {
+		 * map.get("All").session.getBasicRemote().sendText("12"); }
+		 */
 
 		/*
 		 * for (String it : map.keySet()) { System.out.println(it);
