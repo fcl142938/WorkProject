@@ -10,6 +10,6 @@
 		</update>
 		
 		<select id="queryByUserId" resultType="com.accp.pojo.Messages">
-			select  * from Messages where userid= #{userid} and status =0
+			select  * from Messages where userid= #{userid} and status =0  order by  time desc
 		</select>
 </mapper>
